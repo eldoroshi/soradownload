@@ -257,10 +257,10 @@ def supported_sites():
         ]
     })
 
-@app.route('/', methods=['GET'])
+@app.route('/')
 def index():
-    """Root endpoint"""
-    return jsonify({'status': 'ok', 'message': 'Social Media Downloader API'})
+    """Serve the main HTML page"""
+    return send_file('index.html')
 
 @app.route('/api/health', methods=['GET'])
 def health_check():

@@ -123,42 +123,66 @@ def download_video():
 def process_download(url, format_quality, download_id):
     """Process the download in background"""
     try:
+        # Check if ffmpeg is available
+        import shutil
+        ffmpeg_available = shutil.which('ffmpeg') is not None
+
         # Format selection with fallback options
         if format_quality == 'audio':
-            format_string = 'bestaudio/best'
-            postprocessors = [{
-                'key': 'FFmpegExtractAudio',
-                'preferredcodec': 'mp3',
-                'preferredquality': '192',
-            }]
-            ext = 'mp3'
+            if ffmpeg_available:
+                format_string = 'bestaudio/best'
+                postprocessors = [{
+                    'key': 'FFmpegExtractAudio',
+                    'preferredcodec': 'mp3',
+                    'preferredquality': '192',
+                }]
+            else:
+                format_string = 'bestaudio[ext=m4a]/bestaudio/best'
+                postprocessors = []
+            ext = 'mp3' if ffmpeg_available else 'm4a'
         elif format_quality == '1080p':
-            format_string = 'bestvideo[height<=1080][ext=mp4]+bestaudio[ext=m4a]/bestvideo[height<=1080]+bestaudio/best[height<=1080]/best'
-            postprocessors = [{
-                'key': 'FFmpegVideoConvertor',
-                'preferedformat': 'mp4',
-            }]
+            if ffmpeg_available:
+                format_string = 'bestvideo[height<=1080][ext=mp4]+bestaudio[ext=m4a]/bestvideo[height<=1080]+bestaudio/best[height<=1080]/best'
+                postprocessors = [{
+                    'key': 'FFmpegVideoConvertor',
+                    'preferedformat': 'mp4',
+                }]
+            else:
+                format_string = 'best[height<=1080][ext=mp4]/best[height<=1080]/best'
+                postprocessors = []
             ext = 'mp4'
         elif format_quality == '720p':
-            format_string = 'bestvideo[height<=720][ext=mp4]+bestaudio[ext=m4a]/bestvideo[height<=720]+bestaudio/best[height<=720]/best'
-            postprocessors = [{
-                'key': 'FFmpegVideoConvertor',
-                'preferedformat': 'mp4',
-            }]
+            if ffmpeg_available:
+                format_string = 'bestvideo[height<=720][ext=mp4]+bestaudio[ext=m4a]/bestvideo[height<=720]+bestaudio/best[height<=720]/best'
+                postprocessors = [{
+                    'key': 'FFmpegVideoConvertor',
+                    'preferedformat': 'mp4',
+                }]
+            else:
+                format_string = 'best[height<=720][ext=mp4]/best[height<=720]/best'
+                postprocessors = []
             ext = 'mp4'
         elif format_quality == '480p':
-            format_string = 'bestvideo[height<=480][ext=mp4]+bestaudio[ext=m4a]/bestvideo[height<=480]+bestaudio/best[height<=480]/best'
-            postprocessors = [{
-                'key': 'FFmpegVideoConvertor',
-                'preferedformat': 'mp4',
-            }]
+            if ffmpeg_available:
+                format_string = 'bestvideo[height<=480][ext=mp4]+bestaudio[ext=m4a]/bestvideo[height<=480]+bestaudio/best[height<=480]/best'
+                postprocessors = [{
+                    'key': 'FFmpegVideoConvertor',
+                    'preferedformat': 'mp4',
+                }]
+            else:
+                format_string = 'best[height<=480][ext=mp4]/best[height<=480]/best'
+                postprocessors = []
             ext = 'mp4'
         else:  # best
-            format_string = 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/bestvideo+bestaudio/best'
-            postprocessors = [{
-                'key': 'FFmpegVideoConvertor',
-                'preferedformat': 'mp4',
-            }]
+            if ffmpeg_available:
+                format_string = 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/bestvideo+bestaudio/best'
+                postprocessors = [{
+                    'key': 'FFmpegVideoConvertor',
+                    'preferedformat': 'mp4',
+                }]
+            else:
+                format_string = 'best[ext=mp4]/best'
+                postprocessors = []
             ext = 'mp4'
 
         filename = f'{download_id}.{ext}'
@@ -169,7 +193,7 @@ def process_download(url, format_quality, download_id):
             'outtmpl': os.path.join(DOWNLOAD_DIR, f'{download_id}.%(ext)s'),
             'progress_hooks': [ProgressHook(download_id)],
             'postprocessors': postprocessors,
-            'merge_output_format': 'mp4' if ext == 'mp4' else None,
+            'merge_output_format': 'mp4' if ext == 'mp4' and ffmpeg_available else None,
             'quiet': False,
             'no_warnings': False,
             'ignoreerrors': False,

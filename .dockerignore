@@ -1,0 +1,7 @@
+myenv
+.git
+*.pyc
+__pycache__
+downloads/*
+*.md
+path

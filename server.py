@@ -266,7 +266,8 @@ def health_check():
 cleanup_old_files()
 
 if __name__ == '__main__':
+    port = int(os.environ.get('PORT', 8080))
     print("Starting Social Media Downloader Server...")
     print(f"Download directory: {DOWNLOAD_DIR}")
-    print("Server running on http://localhost:7550")
-    app.run(debug=True, host='0.0.0.0', port=7550)
+    print(f"Server running on http://localhost:{port}")
+    app.run(debug=False, host='0.0.0.0', port=port)

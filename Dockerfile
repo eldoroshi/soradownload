@@ -3,6 +3,7 @@ FROM python:3.11-slim
 # Install ffmpeg and other dependencies
 RUN apt-get update && apt-get install -y \
     ffmpeg \
+    ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
 # Set working directory
